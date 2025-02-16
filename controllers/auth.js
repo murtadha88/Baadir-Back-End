@@ -10,8 +10,8 @@ const User = require('../models/User')
 router.post('/sign-up', async (req, res) => {
     try {
 
-        // Check if the username is taken
-        const userInDatabase = await User.findOne({ username: req.body.username })
+        // Check if the name is taken
+        const userInDatabase = await User.findOne({ email: req.body.email })
 
         if(userInDatabase) {
             return res.status(409).json({ err: 'Something went wrong.'})
@@ -19,18 +19,21 @@ router.post('/sign-up', async (req, res) => {
 
         // Create a new user with hashed password
         const user = await User.create({
-            username: req.body.username,
-            hashedPassword: bcrypt.hashSync(req.body.password, parseInt(process.env.SALT_ROUNDS))
+            name: req.body.name,
+            hashedPassword: bcrypt.hashSync(req.body.password, parseInt(process.env.SALT_ROUNDS)),
+            email: req.body.email,
+            phone: req.body.phone,
+            role: req.body.role
         })
 
         // Construct the payload
-        const payload = { username: user.username, _id: user._id }
+        const payload = { name: user.name, role: user.role, _id: user._id }
 
         // Create the token
-        const token = jwt.sign({ payload }, process.env.JWT_SECRET)
+        const token = jwt.sign({ payload, role: user.role }, process.env.JWT_SECRET)
 
         // Send the token instead of user
-        res.status(201).json({ token })
+        res.status(201).json({ token , role: user.role })
 
     } catch (err) {
         res.status(500).json({ err: err.message })
@@ -40,7 +43,7 @@ router.post('/sign-up', async (req, res) => {
 router.post('/sign-in', async(req, res) => {
     try {
         // Find user in DB
-        const user = await User.findOne({ username: req.body.username })
+        const user = await User.findOne({ email: req.body.email })
 
         // If the user doesn't exist, return a 401 status code with a message
         if (!user) {
@@ -55,11 +58,11 @@ router.post('/sign-in', async(req, res) => {
             return res.status(401).json({ err: 'Invalid credentials'})
         }
 
-        const payload = { username: user.username, _id: user._id }
+        const payload = { name: user.name, role: user.role, _id: user._id }
 
         const token = jwt.sign({ payload }, process.env.JWT_SECRET)
 
-        res.status(200).json({ token })
+        res.status(200).json({ token , role: user.role })
 
     } catch (err) {
         res.status(500).json({ err: err.message })
