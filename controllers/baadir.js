@@ -29,4 +29,14 @@ router.post("/event", verifyToken, async (req, res) => {
 router.get("/", (req, res) => {
     res.send("");
 })
+
+router.get("/events", async (req, res) => {
+    try {
+        const eventsList = await Event.find()
+        res.status(200).json(eventsList)
+    } catch (err) {
+        res.status(500).json({ err: err.message })
+    }
+})
+
 module.exports = router
