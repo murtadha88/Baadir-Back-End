@@ -13,8 +13,7 @@ router.get("/applications", async (req,res) => {
     }
 })
 
-router.get("/", (req,res) => {
-    res.send("GG");
+
 const verifyToken = require("../middleware/verify-token")
 
 router.post("/event", verifyToken, async (req, res) => {
