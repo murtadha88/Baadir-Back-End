@@ -5,7 +5,7 @@ const commentSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    userId: { type: String }
+    userId: {type: mongoose.Schema.Types.ObjectId, ref: "User"},
 });
 
 const eventSchema = new mongoose.Schema({
@@ -34,7 +34,7 @@ const eventSchema = new mongoose.Schema({
         required: true
     },
     comments: [commentSchema],
-    userId: {type: String},
+    userId: {type: mongoose.Schema.Types.ObjectId, ref: "User"},
     },
     { timestamps: true }
 );
