@@ -5,8 +5,8 @@ const applicationSchema = new mongoose.Schema({
         type: String,
         enum: ['Accepeted', 'Rejected', 'In Progress']
     },
-    eventId: { type: String },
-    userId: { type: String }
+    eventId: {type: mongoose.Schema.Types.ObjectId, ref: "Event"},
+    userId: {type: mongoose.Schema.Types.ObjectId, ref: "User"},
 });
 
 const Application = mongoose.model('Application', applicationSchema);
