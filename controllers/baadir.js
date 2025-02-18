@@ -3,18 +3,54 @@ const User = require('../models/User')
 const Application = require('../models/Application')
 const Event = require("../models/Event")
 const router = express.Router()
+const verifyToken = require("../middleware/verify-token")
 
-router.get("/applications", async (req,res) => {
+router.get("/companyEvents/:eventId/applications", verifyToken, async (req, res) => {
     try {
-        const foundApplication = await Application.find()
-        res.status(200).json(foundApplication)
+        const foundApplications = await Application.find()
+        const companyApplications = [];
+        foundApplications.forEach(foundApplication => {
+            if(foundApplication.eventId.equals(req.params.eventId)){
+                companyApplications.push(foundApplication);
+            }
+        });
+        res.status(200).json(companyApplications)
+    } catch (err) {
+        res.status(500).json({ err: err.message })
+    }
+})
+
+router.get("/userApplications", verifyToken, async (req, res) => {
+    try {
+        const foundApplications = await Application.find()
+        const userApplications = [];
+        foundApplications.forEach(foundApplication => {
+            if(foundApplication.userId.equals(req.user._id)){
+                userApplications.push(foundApplication);
+            }
+        });
+        res.status(200).json(userApplications)
+    } catch (err) {
+        res.status(500).json({ err: err.message })
+    }
+})
+
+router.get("/companyEvents", verifyToken, async (req, res) => {
+    try {
+        const foundApplications = await Event.find()
+        const companyEvents = [];
+        foundApplications.forEach(foundApplication => {
+            if(foundApplication.userId.equals(req.user._id)){
+                companyEvents.push(foundApplication);
+            }
+        });
+        res.status(200).json(companyEvents)
     } catch (err) {
         res.status(500).json({ err: err.message })
     }
 })
 
 
-const verifyToken = require("../middleware/verify-token")
 
 router.post("/event", verifyToken, async (req, res) => {
     try {
@@ -26,6 +62,7 @@ router.post("/event", verifyToken, async (req, res) => {
         res.status(500).json({ err: err.message });
     }
 });
+
 router.get("/", (req, res) => {
     res.send("");
 })
@@ -38,5 +75,37 @@ router.get("/events", async (req, res) => {
         res.status(500).json({ err: err.message })
     }
 })
+
+router.put("/events/:eventId", async (req, res) => {
+    try {
+        const updatedEvent = await Event.findByIdAndUpdate(req.params.eventId, req.body, {
+            new: true
+        })
+        if (!updatedEvent) {
+            res.status(404)
+            throw new Error('Event not found')
+        }
+        res.status(200).json(updatedEvent)
+    } catch (err) {
+        if (res.statusCode === 404) {
+            res.json({ err: err.message })
+        } else {
+            res.status(500).json({ err: err.message })
+        }
+    }
+})
+
+router.post("/companyEvents/:eventId/applications", verifyToken, async (req, res) => {
+    try {
+        req.body.userId = req.user._id;
+        req.body.eventId = req.params.eventId;
+        const createApplication = await Application.create(req.body);
+        createApplication._doc.userId = req.user;
+        createApplication._doc.eventId = req.params.eventId;
+        res.status(201).json(createApplication);
+    } catch (err) {
+        res.status(500).json({ err: err.message });
+    }
+});
 
 module.exports = router
