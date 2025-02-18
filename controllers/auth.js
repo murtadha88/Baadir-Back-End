@@ -33,7 +33,7 @@ router.post('/sign-up', async (req, res) => {
         const token = jwt.sign({ payload, role: user.role }, process.env.JWT_SECRET)
 
         // Send the token instead of user
-        res.status(201).json({ token , role: user.role })
+        res.status(201).json({ token })
 
     } catch (err) {
         res.status(500).json({ err: err.message })
@@ -62,7 +62,7 @@ router.post('/sign-in', async(req, res) => {
 
         const token = jwt.sign({ payload }, process.env.JWT_SECRET)
 
-        res.status(200).json({ token , role: user.role })
+        res.status(200).json({ token })
 
     } catch (err) {
         res.status(500).json({ err: err.message })
