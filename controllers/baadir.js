@@ -5,12 +5,13 @@ const Event = require("../models/Event")
 const router = express.Router()
 const verifyToken = require("../middleware/verify-token")
 
+// get the applications for specific event - company side
 router.get("/companyEvents/:eventId/applications", verifyToken, async (req, res) => {
     try {
         const foundApplications = await Application.find()
         const companyApplications = [];
         foundApplications.forEach(foundApplication => {
-            if(foundApplication.eventId.equals(req.params.eventId)){
+            if (foundApplication.eventId.equals(req.params.eventId)) {
                 companyApplications.push(foundApplication);
             }
         });
@@ -20,12 +21,13 @@ router.get("/companyEvents/:eventId/applications", verifyToken, async (req, res)
     }
 })
 
+// get all application for specific user - volunteer side
 router.get("/userApplications", verifyToken, async (req, res) => {
     try {
         const foundApplications = await Application.find()
         const userApplications = [];
         foundApplications.forEach(foundApplication => {
-            if(foundApplication.userId.equals(req.user._id)){
+            if (foundApplication.userId.equals(req.user._id)) {
                 userApplications.push(foundApplication);
             }
         });
@@ -35,13 +37,14 @@ router.get("/userApplications", verifyToken, async (req, res) => {
     }
 })
 
+// get all the events for specific company - company side
 router.get("/companyEvents", verifyToken, async (req, res) => {
     try {
-        const foundApplications = await Event.find()
+        const foundEvents = await Event.find()
         const companyEvents = [];
-        foundApplications.forEach(foundApplication => {
-            if(foundApplication.userId.equals(req.user._id)){
-                companyEvents.push(foundApplication);
+        foundEvents.forEach(foundEvent => {
+            if (foundEvent.userId.equals(req.user._id)) {
+                companyEvents.push(foundEvent);
             }
         });
         res.status(200).json(companyEvents)
@@ -51,8 +54,8 @@ router.get("/companyEvents", verifyToken, async (req, res) => {
 })
 
 
-
-router.post("/event", verifyToken, async (req, res) => {
+// create an events - company side
+router.post("/events", verifyToken, async (req, res) => {
     try {
         req.body.userId = req.user._id;
         const createEvent = await Event.create(req.body);
@@ -63,10 +66,7 @@ router.post("/event", verifyToken, async (req, res) => {
     }
 });
 
-router.get("/", (req, res) => {
-    res.send("");
-})
-
+// get all events - volunteer side
 router.get("/events", async (req, res) => {
     try {
         const eventsList = await Event.find();
@@ -76,43 +76,47 @@ router.get("/events", async (req, res) => {
     }
 })
 
-//show each event by company
+// get one specifc event - company side
 router.get("/companyEvents/:eventId", verifyToken, async (req, res) => {
     try {
-      const eventId = await Event.findById(req.params.eventId).populate("userId");
-      res.status(200).json(eventId);
+        const eventId = await Event.findById(req.params.eventId).populate("userId");
+        res.status(200).json(eventId);
     } catch (err) {
-      res.status(500).json({ err: err.message });
-    }
-  });
-// delete event by company
-  router.delete("/events/:eventId", verifyToken, async (req, res)=>{
-    try{
-        const eventId = await Event.findById(req.params.eventId);
-        if(!eventId.userId.equals(req.user._id)){
-            return res.status(403).send("You're not allowed to do that!");
-          }
-          const deletedEvent = await Event.findByIdAndDelete(req.params.eventId);
-          res.status(200).json(deletedEvent);
-    }
-    catch(err){
         res.status(500).json({ err: err.message });
     }
-  })
-  router.delete("/applications/:applicationId", verifyToken, async (req, res)=>{
-    try{
-        const applicationId = await Application.findById(req.params.applicationId);
-        if(!applicationId.userId.equals(req.user._id)){
-            return res.status(403).send("You're not allowed to do that!");
-          }
-          const deletedApplication = await Event.findByIdAndDelete(req.params.applicationId);
-          res.status(200).json(deletedApplication);
-    }
-    catch(err){
-        res.status(500).json({ err: err.message });
-    }
-  })
+});
 
+// delete event by company - company side
+router.delete("/events/:eventId", verifyToken, async (req, res) => {
+    try {
+        const eventId = await Event.findById(req.params.eventId);
+        if (!eventId.userId.equals(req.user._id)) {
+            return res.status(403).send("You're not allowed to do that!");
+        }
+        const deletedEvent = await Event.findByIdAndDelete(req.params.eventId);
+        res.status(200).json(deletedEvent);
+    }
+    catch (err) {
+        res.status(500).json({ err: err.message });
+    }
+})
+
+// delte an application - volunteer side
+router.delete("/applications/:applicationId", verifyToken, async (req, res) => {
+    try {
+        const applicationId = await Application.findById(req.params.applicationId);
+        if (!applicationId.userId.equals(req.user._id)) {
+            return res.status(403).send("You're not allowed to do that!");
+        }
+        const deletedApplication = await Event.findByIdAndDelete(req.params.applicationId);
+        res.status(200).json(deletedApplication);
+    }
+    catch (err) {
+        res.status(500).json({ err: err.message });
+    }
+})
+
+// edit an event - company side
 router.put("/events/:eventId", async (req, res) => {
     try {
         const updatedEvent = await Event.findByIdAndUpdate(req.params.eventId, req.body, {
@@ -132,6 +136,7 @@ router.put("/events/:eventId", async (req, res) => {
     }
 })
 
+// get all application for specific event - company side
 router.post("/companyEvents/:eventId/applications", verifyToken, async (req, res) => {
     try {
         req.body.userId = req.user._id;
