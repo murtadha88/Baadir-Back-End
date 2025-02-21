@@ -69,7 +69,7 @@ router.post("/events", verifyToken, async (req, res) => {
 // get all events - volunteer side
 router.get("/events", async (req, res) => {
     try {
-        const eventsList = await Event.find();
+        const eventsList = await Event.find().populate('userId', 'name'); 
         res.status(200).json(eventsList)
     } catch (err) {
         res.status(500).json({ err: err.message })
