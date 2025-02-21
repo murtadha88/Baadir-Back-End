@@ -96,7 +96,7 @@ router.get("/companyEvents", verifyToken, isCompany, async (req, res) => {
 
 
 // create an events - company side
-router.post("/events", verifyToken, async (req, res) => {
+router.post("/events", verifyToken, isCompany, async (req, res) => {
     try {
         req.body.userId = req.user._id;
         const createEvent = await Event.create(req.body);
