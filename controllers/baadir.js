@@ -114,6 +114,30 @@ router.get("/companyEvents", verifyToken, isCompany, async (req, res) => {
     }
 })
 
+
+// create an events - company side
+router.post("/events", verifyToken, async (req, res) => {
+    try {
+        req.body.userId = req.user._id;
+        const createEvent = await Event.create(req.body);
+        createEvent._doc.userId = req.user;
+        res.status(201).json(createEvent);
+    } catch (err) {
+        res.status(500).json({ err: err.message });
+    }
+});
+
+// get all events - volunteer side
+router.get("/events", async (req, res) => {
+    try {
+        const eventsList = await Event.find().populate('userId', 'name'); 
+        res.status(200).json(eventsList)
+    } catch (err) {
+        res.status(500).json({ err: err.message })
+    }
+})
+
+// get one specifc event - company side
 // get one specifc event - company side and vlounteer side
 router.get("/companyEvents/:eventId", verifyToken, async (req, res) => {
     try {
