@@ -25,7 +25,7 @@ router.get("/applications", verifyToken, async (req, res) => {
 })
 
 // get the applications for specific event - company side
-router.get("/companyEvents/:eventId/applications", verifyToken, isCompany, async (req, res) => {
+router.get("/events/:eventId/applications", verifyToken, isCompany, async (req, res) => {
     try {
         const foundApplications = await Application.find()
         const companyApplications = [];
@@ -41,7 +41,7 @@ router.get("/companyEvents/:eventId/applications", verifyToken, isCompany, async
 })
 
 // add an application - volunteer side
-router.post("/companyEvents/:eventId/applications", verifyToken, async (req, res) => {
+router.post("/events/:eventId/applications", verifyToken, async (req, res) => {
     try {
         req.body.userId = req.user._id;
         req.body.eventId = req.params.eventId;
@@ -118,7 +118,7 @@ router.get("/events", async (req, res) => {
 })
 
 // get one specifc event - company side and vlounteer side
-router.get("/companyEvents/:eventId", verifyToken, async (req, res) => {
+router.get("/events/:eventId", verifyToken, async (req, res) => {
     try {
         const eventId = await Event.findById(req.params.eventId).populate("userId");
         res.status(200).json(eventId);

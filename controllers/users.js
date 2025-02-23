@@ -7,8 +7,7 @@ const verifyToken = require('../middleware/verify-token')
 // GET Request to grab all users
 router.get('/', verifyToken, async (req, res) => {
     try {
-        // Get all users
-        const users = await User.find({}, "name")
+        const users = await User.find()
 
         res.json(users)
     } catch(err) {
