@@ -11,6 +11,7 @@ const usersRouter = require('./controllers/users')
 const baadirRouter = require('./controllers/baadir');
 
 mongoose.connect(process.env.MONGODB_URI)
+const port = process.env.PORT || 3000;
 
 mongoose.connection.on('connected', () => {
     console.log(`Connected to MongoDB ${mongoose.connection.name}`)
@@ -27,7 +28,7 @@ app.use('/users', usersRouter)
 app.use('/baadir', baadirRouter);
 
 
-app.listen( 3000, () => {
+app.listen(port, () => {
     console.log("The express app is ready")
 })
 
